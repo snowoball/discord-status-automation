@@ -1,0 +1,13 @@
+[
+  {
+    "active": true,
+    "preset_id": 1,
+    "interval_seconds": 15,
+    "location": [
+      {
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      }
+    ]
+  }
+]

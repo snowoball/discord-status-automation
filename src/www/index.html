@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/index.css" />
+  <script src="js/navigation.js" defer></script>
+  <script type="module" src="js/index.js" defer></script>
+</head>
+
+<body>
+
+  <header id="main-header">
+    <nav id="main-header-nav">
+      <div id="main-header-logo">Discord Status Automation</div>
+      <ul id="main-header-nav-list">
+        <li><a href="index.html" id="main-header-link-home" class="active">Settings</a></li>
+        <li><a href="statuses.html" id="main-header-link-statuses">Statuses</a></li>
+        <li><a href="presets.html" id="main-header-link-presets">Presets</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="page-content">
+    <div id="page-header">
+      <h1>Settings</h1>
+      <p>Manage your global settings such as active preset, update interval, and location. Location data is optional,
+        but is required for <code>{{weather}}</code> and <code>{{time}}</code>-like placeholder macros to work.</p>
+    </div>
+
+
+    <div id="settings-section" class="page-body">
+      <div class="list-container card">
+        <h2>Current Settings</h2>
+        <div id="settings-display" class="settings-display">
+          <p>Loading settings...</p>
+        </div>
+      </div>
+
+      <div class="form-container card">
+        <h2 id="form-title">Update Settings</h2>
+        <form id="settings-form">
+          <label>
+            <input type="checkbox" id="activeToggle" name="active" />
+            Active
+          </label>
+
+          <label for="presetId">Active Preset:</label>
+          <select id="presetId" name="presetId" required></select>
+
+          <label for="interval">Interval (seconds):</label>
+          <input type="number" id="interval" name="interval" min="1" required />
+
+          <h3>Location</h3>
+          <div class="location-fields">
+            <label for="latitude">Latitude:</label>
+            <input type="number" id="latitude" step="any" name="latitude" />
+
+            <label for="longitude">Longitude:</label>
+            <input type="number" id="longitude" step="any" name="longitude" />
+          </div>
+
+          <button type="submit">Save Settings</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer id="main-footer">
+    <p>Discord status automation | by Snowoball</p>
+  </footer>
+
+</body>
+
+</html>

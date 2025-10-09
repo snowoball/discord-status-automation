@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Statuses</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/statuses.css" />
+  <script src="js/navigation.js" defer></script>
+  <script type="module" src="js/statuses.js" defer></script>
+</head>
+
+<body>
+
+  <header id="main-header">
+    <nav id="main-header-nav">
+      <div id="main-header-logo">Discord Status Automation</div>
+      <ul id="main-header-nav-list">
+        <li><a href="index.html" id="main-header-link-home">Settings</a></li>
+        <li><a href="statuses.html" id="main-header-link-statuses" class="active">Statuses</a></li>
+        <li><a href="presets.html" id="main-header-link-presets">Presets</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="page-content">
+    <div id="page-header">
+      <h1>Statuses</h1>
+      <p>
+        Manage your statuses. A status is a message that can be displayed on your profile.
+        You can use placeholder macros which will be dynamically replaced based on location and date/time
+        from where this service is run.<br>
+        Supported macros include:<br>
+        <code>{{weather_emoji}}</code><br>
+        <code>{{weather_text}}</code><br>
+        <code>{{time_emoji}}</code><br>
+        <code>{{time_text}}</code><br>
+        <code>{{timestamp_text}}</code><br>
+        You can organize your statuses using tags so they are easier to find in the presets.
+      </p>
+    </div>
+    <div class="page-grid">
+      <!-- List section -->
+      <div class="list-section">
+        <div class="list-header">
+          <h2>All Statuses</h2>
+          <button id="new-status" class="btn-primary">＋ New</button>
+        </div>
+        <div id="status-list" class="scrollable-list"></div>
+      </div>
+
+      <!-- Edit/Add form -->
+      <form id="status-form" class="side-form card">
+        <h2 id="form-title">Add Status</h2>
+
+        <label>Emoji</label>
+        <input name="emoji" placeholder="💻 or {{weather_emoji}}" required />
+
+        <label>Text</label>
+        <textarea name="text" rows="6" placeholder="Your status text...  (supports multiple lines. Use return)"
+          required></textarea>
+
+        <label>Tags (comma-separated)</label>
+        <input name="tags" placeholder="e.g. quote, joke, lyric" />
+
+        <div class="form-buttons">
+          <button type="submit" class="btn-primary">Save</button>
+          <button type="reset" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer id="main-footer">
+    <p>Discord status automation | by Snowoball</p>
+  </footer>
+</body>
+
+</html>

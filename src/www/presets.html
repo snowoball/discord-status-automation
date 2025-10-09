@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Presets</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/presets.css" />
+  <script src="js/navigation.js" defer></script>
+  <script type="module" src="js/presets.js" defer></script>
+</head>
+
+<body>
+
+  <header id="main-header">
+    <nav id="main-header-nav">
+      <div id="main-header-logo">Discord Status Automation</div>
+      <ul id="main-header-nav-list">
+        <li><a href="index.html" id="main-header-link-home">Settings</a></li>
+        <li><a href="statuses.html" id="main-header-link-statuses">Statuses</a></li>
+        <li><a href="presets.html" id="main-header-link-presets" class="active">Presets</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="page-content">
+    <div id="page-header">
+      <h1>Presets</h1>
+      <p>
+        Manage your status presets. A preset is a collection of statuses that can be activated together.
+        You can order the statuses within each preset and choose their type: <strong>Random</strong>
+        (randomly pick one status), <strong>Static</strong> (always use this status), or
+        <strong>None</strong> (leave empty).
+      </p>
+    </div>
+    <div class="page-grid">
+      <!-- List section -->
+      <div class="list-section">
+        <div class="list-header">
+          <h2>All Presets</h2>
+          <button id="new-preset" class="btn-primary">＋ New</button>
+        </div>
+        <div id="preset-list" class="scrollable-list"></div>
+      </div>
+
+      <!-- Edit/Add form -->
+      <form id="preset-form" class="side-form card">
+        <h2 id="form-title">Add Preset</h2>
+        <label>Name</label>
+        <input name="name" placeholder="preset name" required />
+
+        <div id="statuses-section">
+          <h3>Statuses</h3>
+          <div id="status-list"></div>
+          <button type="button" id="add-status" class="btn-primary">＋ Add Status</button>
+        </div>
+
+        <div class="form-buttons">
+          <button type="submit" class="btn-primary">Save</button>
+          <button type="reset" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer id="main-footer">
+    <p>Discord status automation | by Snowoball</p>
+  </footer>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+[
+  {
+    "status_id": "1",
+    "status_emoji": "💻",
+    "status_text": "Coding in progress..."
+  },
+  {
+    "status_id": "2",
+    "status_emoji": "☕",
+    "status_text": "Taking a coffee break"
+  },
+  {
+    "status_id": "3",
+    "status_emoji": "{{weather_emoji}}",
+    "status_text": "{{weather_text}}",
+    "tags": [
+      "dynamic"
+    ]
+  },
+  {
+    "status_id": "4",
+    "status_emoji": "{{time_emoji}}",
+    "status_text": "{{time_text}}",
+    "tags": [
+      "dynamic"
+    ]
+  },
+  {
+    "status_id": "5",
+    "status_emoji": "📚",
+    "status_text": "Reading documentation",
+    "tags": [
+      "learning"
+    ]
+  },
+  {
+    "status_id": "6",
+    "status_emoji": "🎯",
+    "status_text": "Focusing on tasks"
+  }
+]

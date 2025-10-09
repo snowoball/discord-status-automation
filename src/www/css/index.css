@@ -1,0 +1,126 @@
+#settings-section {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.settings-display {
+  margin-top: 1rem;
+}
+
+.settings-card {
+  background: var(--card-inner-bg, #292929);
+  border-radius: 8px;
+  padding: 1rem;
+  line-height: 1.5;
+}
+
+.settings-card p {
+  margin: 0.5rem 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+/* === Checkbox (Active toggle) === */
+label[for="activeToggle"],
+label:has(#activeToggle) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  margin-top: 0.8rem;
+  cursor: pointer;
+}
+
+/* Hide native checkbox */
+#activeToggle {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 46px;
+  height: 24px;
+  background: #333;
+  border-radius: 12px;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+/* Slider knob */
+#activeToggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #aaa;
+  transition: all 0.25s ease;
+}
+
+/* Checked state */
+#activeToggle:checked {
+  background: var(--accent);
+}
+
+#activeToggle:checked::before {
+  left: 25px;
+  background: #fff;
+}
+
+/* === Inputs, Selects === */
+input[type="number"], select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #eee;
+}
+
+/* === Button === */
+button[type="submit"] {
+  margin-top: 1rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button[type="submit"]:hover {
+  background: #43a047;
+}
+
+/* === Errors === */
+.error {
+  color: #f55;
+  font-weight: bold;
+}
+
+/* Optional: small polish for location fields */
+.location-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+/* Disabled form appearance */
+.form-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.form-disabled label:has(#activeToggle),
+.form-disabled #activeToggle {
+  opacity: 1;
+  pointer-events: auto;
+}

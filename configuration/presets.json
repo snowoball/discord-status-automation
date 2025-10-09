@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "name": "My Preset",
+    "statuses": [
+      {
+        "sequence": 0,
+        "type": "static",
+        "tagFilter": "",
+        "status": 4
+      },
+      {
+        "sequence": 1,
+        "type": "static",
+        "tagFilter": "",
+        "status": 3
+      },
+      {
+        "sequence": 2,
+        "type": "none",
+        "tagFilter": ""
+      },
+      {
+        "sequence": 3,
+        "type": "random",
+        "tagFilter": "",
+        "status": [
+          1,
+          2
+        ]
+      },
+      {
+        "sequence": 4,
+        "type": "none",
+        "tagFilter": ""
+      },
+      {
+        "sequence": 5,
+        "type": "random",
+        "tagFilter": "learning",
+        "status": [
+          5,
+          6
+        ]
+      },
+      {
+        "sequence": 6,
+        "type": "none",
+        "tagFilter": ""
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Another Preset",
+    "statuses": [
+      {
+        "sequence": 0,
+        "type": "static",
+        "tagFilter": "",
+        "status": 1
+      }
+    ]
+  }
+]
