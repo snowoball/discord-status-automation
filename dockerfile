@@ -22,6 +22,9 @@ FROM alpine:latest
 
 WORKDIR /app
 
+# Install tzdata for timezone support
+RUN apk add --no-cache tzdata
+
 # Copy the binary from builder
 COPY --from=builder /discord-status-bot .
 
@@ -37,16 +40,22 @@ EXPOSE 8080
 
 # Environment variable (default: webserver enabled)
 ENV NO_WEB=false
+# Set default TZ in case it's not in .env
+ENV TZ=UTC
 
 # Volume for persistent configuration
 VOLUME ["/app/configuration"]
 
-# Healthcheck (optional, checks if webserver is up)
+# Healthcheck (optional)
 HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://localhost:8080/health || exit 0
 
-# Start command - can toggle via env or flag
-CMD if [ "$NO_WEB" = "true" ]; then \
-        echo "Launching without webserver..." && ./discord-status-bot --no-web; \
-    else \
-        echo "Launching with webserver..." && ./discord-status-bot; \
-    fi
+# Start command
+CMD \
+  # Set timezone from environment variable (from .env)
+  cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+  if [ "$NO_WEB" = "true" ]; then \
+    echo "Launching without webserver..." && ./discord-status-bot --no-web; \
+  else \
+    echo "Launching with webserver..." && ./discord-status-bot; \
+  fi
+
