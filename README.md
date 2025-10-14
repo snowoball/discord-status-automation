@@ -132,10 +132,10 @@ Run with webserver enabled (recommended):
 
 ```bash
 # Linux / Bash
-docker run -d --name auto-discord-status -p 8080:8080 -v $(pwd)/configuration:/app/configuration -e NO_WEB=false auto-discord-status
+docker run -d --name auto-discord-status -p 8080:8080 -v $(pwd)/configuration:/app/configuration --env-file .env --restart unless-stopped -e NO_WEB=false auto-discord-status
 
 # Windows PowerShell
-docker run -d --name auto-discord-status -p 8080:8080 -v ${PWD}\configuration:/app/configuration -e NO_WEB=false auto-discord-status
+docker run -d --name auto-discord-status -p 8080:8080 -v ${PWD}\configuration:/app/configuration --env-file .env --restart unless-stopped -e NO_WEB=false auto-discord-status
 ```
 
 > ⚠️ Using the `-v $(pwd)/configuration:/app/configuration` flag ensures your
