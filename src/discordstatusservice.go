@@ -99,7 +99,7 @@ func getTimeBasedEmoji(lat, lon float64) (emoji, text, timestamp string) {
 		emoji, text = "🌙", "Night"
 	}
 
-	timestamp = now.Format("04:20 PM")
+	timestamp = now.Format("03:04 PM")
 	return
 }
 
