@@ -27,8 +27,7 @@
   <main id="page-content">
     <div id="page-header">
       <h1>Settings</h1>
-      <p>Manage your global settings such as active preset, update interval, and location. Location data is optional,
-        but is required for <code>{{weather}}</code> and <code>{{time}}</code>-like placeholder macros to work.</p>
+      <p>Manage your global settings. <strong>Location is optional</strong> (only required for weather placeholders). <strong>Timezone is required</strong> for time-based sequence modules.</p>
     </div>
 
 
@@ -54,7 +53,12 @@
           <label for="interval">Interval (seconds):</label>
           <input type="number" id="interval" name="interval" min="1" required />
 
-          <h3>Location</h3>
+          <label for="timezone">Timezone: <span class="required">*</span></label>
+          <select id="timezone" name="timezone" required>
+            <option value="">Select timezone...</option>
+          </select>
+
+          <h3>Location <span class="optional-label">(Optional - for weather placeholders)</span></h3>
           <div class="location-fields">
             <label for="latitude">Latitude:</label>
             <input type="number" id="latitude" step="any" name="latitude" />

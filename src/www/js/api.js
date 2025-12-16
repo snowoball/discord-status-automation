@@ -1,22 +1,26 @@
 // js/api.js
-export async function fetchJSON(endpoint) {
-  const res = await fetch(endpoint);
-  if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
+
+// Fetch the entire configuration
+export async function fetchConfig() {
+  const res = await fetch("/api/config");
+  if (!res.ok) throw new Error("Failed to fetch configuration");
   return await res.json();
 }
 
-export async function postJSON(endpoint, data) {
-  const res = await fetch(endpoint, {
-    method: "POST",
+// Update the entire configuration
+export async function updateConfig(config) {
+  const res = await fetch("/api/config", {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data, null, 2),
+    body: JSON.stringify(config, null, 2),
   });
-  if (!res.ok) throw new Error(`Failed to post to ${endpoint}`);
+  if (!res.ok) throw new Error("Failed to update configuration");
   return await res.json();
 }
 
-export function generateNewId(data, key = "id") {
-  if (!data || data.length === 0) return 1;
-  const maxId = Math.max(...data.map((d) => parseInt(d[key] || 0)));
+// Helper to generate new ID
+export function generateNewId(items, key = "id") {
+  if (!items || items.length === 0) return 1;
+  const maxId = Math.max(...items.map((item) => parseInt(item[key] || 0)));
   return maxId + 1;
 }

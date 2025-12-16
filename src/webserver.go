@@ -6,39 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 )
-
-// =======================
-// === Struct Objects ====
-// =======================
-
-// --- active.json ---
-type Web_Settings struct {
-	Active             bool `json:"active"`
-	PresetID           int  `json:"preset_id"`
-	StatusSequenceNum  int  `json:"status_sequence_number"`
-}
-
-// --- presets.json ---
-type Web_PresetStatus struct {
-	Sequence int         `json:"sequence"`
-	Type     string      `json:"type"`
-	Web_Status   interface{} `json:"status,omitempty"` // can be int or []int
-}
-
-type Web_Preset struct {
-	ID       int            `json:"id"`
-	Name     string         `json:"name"`
-	Statuses []Web_PresetStatus `json:"statuses"`
-}
-
-// --- statuses.json ---
-type Web_Status struct {
-	StatusID     string `json:"status_id"`
-	StatusEmoji  string `json:"status_emoji"`
-	StatusText   string `json:"status_text"`
-}
 
 // =======================
 // === Start Server ======
@@ -47,13 +15,18 @@ type Web_Status struct {
 func StartWebServer() {
 	go func() {
 		staticDir := "src/www/"
-		configDir := "configuration/"
+		configPath := "configuration/config.json"
 
 		mux := http.NewServeMux()
 
-		// API routes
-		mux.HandleFunc("/api/config/", func(w http.ResponseWriter, r *http.Request) {
-			handleConfigRequest(w, r, configDir)
+		// API routes - single config endpoint
+		mux.HandleFunc("/api/config", func(w http.ResponseWriter, r *http.Request) {
+			handleConfigRequest(w, r, configPath)
+		})
+
+		// API route for sequence type schemas
+		mux.HandleFunc("/api/types", func(w http.ResponseWriter, r *http.Request) {
+			handleTypesRequest(w, r)
 		})
 
 		// Serve static frontend
@@ -72,29 +45,11 @@ func StartWebServer() {
 // === API Handlers ======
 // =======================
 
-// GET/POST /api/config/{type}
-func handleConfigRequest(w http.ResponseWriter, r *http.Request, configDir string) {
-	// Extract config type (active/presets/statuses)
-	configType := filepath.Base(r.URL.Path)
-
-	var filename string
-	switch configType {
-	case "settings":
-		filename = "settings.json"
-	case "presets":
-		filename = "presets.json"
-	case "statuses":
-		filename = "statuses.json"
-	default:
-		http.Error(w, "Unknown configuration type", http.StatusBadRequest)
-		return
-	}
-
-	fullPath := filepath.Join(configDir, filename)
-
+// GET/PUT /api/config
+func handleConfigRequest(w http.ResponseWriter, r *http.Request, configPath string) {
 	switch r.Method {
 	case http.MethodGet:
-		data, err := os.ReadFile(fullPath)
+		data, err := os.ReadFile(configPath)
 		if err != nil {
 			http.Error(w, "Failed to read configuration file", http.StatusInternalServerError)
 			return
@@ -103,7 +58,7 @@ func handleConfigRequest(w http.ResponseWriter, r *http.Request, configDir strin
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(data)
 
-	case http.MethodPost:
+	case http.MethodPut, http.MethodPost:
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Failed to read request body", http.StatusBadRequest)
@@ -111,20 +66,21 @@ func handleConfigRequest(w http.ResponseWriter, r *http.Request, configDir strin
 		}
 		defer r.Body.Close()
 
-		// Sanity check: ensure JSON structure matches expected object
-		if !validateConfigJSON(configType, body) {
-			http.Error(w, "Invalid JSON structure", http.StatusBadRequest)
+		// Validate JSON structure
+		var config Config
+		if err := json.Unmarshal(body, &config); err != nil {
+			http.Error(w, "Invalid JSON structure: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		// Write file (overwrite existing)
-		err = os.WriteFile(fullPath, body, 0644)
+		err = os.WriteFile(configPath, body, 0644)
 		if err != nil {
 			http.Error(w, "Failed to write configuration file", http.StatusInternalServerError)
 			return
 		}
 
-		resp := APIResponse{Web_Status: "ok", Message: fmt.Sprintf("%s configuration updated", configType)}
+		resp := APIResponse{Status: "ok", Message: "Configuration updated"}
 		writeJSON(w, http.StatusOK, resp)
 
 	default:
@@ -132,24 +88,15 @@ func handleConfigRequest(w http.ResponseWriter, r *http.Request, configDir strin
 	}
 }
 
-// =======================
-// === JSON Validation ===
-// =======================
-
-func validateConfigJSON(configType string, data []byte) bool {
-	switch configType {
-	case "settings":
-		var entries []Web_Settings
-		return json.Unmarshal(data, &entries) == nil
-	case "presets":
-		var entries []Web_Preset
-		return json.Unmarshal(data, &entries) == nil
-	case "statuses":
-		var entries []Web_Status
-		return json.Unmarshal(data, &entries) == nil
-	default:
-		return false
+// GET /api/types - Returns available sequence type schemas
+func handleTypesRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	schemas := GetAllTypeSchemas()
+	writeJSON(w, http.StatusOK, schemas)
 }
 
 // =======================
@@ -157,7 +104,7 @@ func validateConfigJSON(configType string, data []byte) bool {
 // =======================
 
 type APIResponse struct {
-	Web_Status  string `json:"status"`
+	Status  string `json:"status"`
 	Message string `json:"message,omitempty"`
 }
 

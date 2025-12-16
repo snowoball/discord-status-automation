@@ -19,41 +19,46 @@ import (
 // ---------- CONFIG STRUCTS ----------
 
 type Location struct {
-    Latitude  float64 `json:"latitude"`
-    Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 }
 
 type Settings struct {
-    Active          bool        `json:"active"`
-    PresetID        int         `json:"preset_id"`
-    IntervalSeconds int         `json:"interval_seconds"`
-    Location        []Location  `json:"location"`
+	Active          bool     `json:"active"`
+	ActivePresetID  int      `json:"activePresetId"`
+	IntervalSeconds int      `json:"intervalSeconds"`
+	Location        Location `json:"location"`
+	Timezone        string   `json:"timezone"`
 }
 
 type Status struct {
-	ID     string   `json:"status_id"`
-	Emoji  string   `json:"status_emoji"`
-	Text   string   `json:"status_text"`
-	Tags   []string `json:"tags"`
+	ID    int      `json:"id"`
+	Emoji string   `json:"emoji"`
+	Text  string   `json:"text"`
+	Tags  []string `json:"tags"`
 }
 
-type PresetSequence struct {
-	Sequence  int         `json:"sequence"`
-	Type      string      `json:"type"` // static, random, none
-	TagFilter string      `json:"tagFilter"`
-	Status    interface{} `json:"status"` // can be number or array
+type SequenceItem struct {
+	Type   string                 `json:"type"` // Type identifier (static, random, none, schedule, weekday, conditional)
+	Params map[string]interface{} `json:"params,omitempty"` // Type-specific parameters
 }
 
 type Preset struct {
-	ID       int              `json:"id"`
-	Name     string           `json:"name"`
-	Statuses []PresetSequence `json:"statuses"`
+	ID       int            `json:"id"`
+	Name     string         `json:"name"`
+	Sequence []SequenceItem `json:"sequence"`
+}
+
+type Config struct {
+	Settings Settings `json:"settings"`
+	Statuses []Status `json:"statuses"`
+	Presets  []Preset `json:"presets"`
 }
 
 // ---------- GLOBALS ----------
 
 var (
-	lastSettingsData []byte
+	lastConfigData []byte
 )
 
 // ---------- HELPERS ----------
@@ -79,12 +84,19 @@ func fileChanged(path string, last *[]byte) bool {
 }
 
 // getTimeBasedEmoji returns a day-phase emoji, descriptive text, and current timestamp
-func getTimeBasedEmoji(lat, lon float64) (emoji, text, timestamp string) {
-	now := time.Now()
+func getTimeBasedEmoji(lat, lon float64, timezone string) (emoji, text, timestamp string) {
+	// Load timezone
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		log.Printf("⚠️ Failed to load timezone '%s', using local time: %v\n", timezone, err)
+		loc = time.Local
+	}
+	
+	now := time.Now().In(loc)
 	sunriseTime, sunsetTime := sunrise.SunriseSunset(lat, lon, now.Year(), now.Month(), now.Day())
 
-	morningEnd := time.Date(now.Year(), now.Month(), now.Day(), 9, 0, 0, 0, now.Location())
-	eveningStart := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
+	morningEnd := time.Date(now.Year(), now.Month(), now.Day(), 9, 0, 0, 0, loc)
+	eveningStart := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, loc)
 
 	switch {
 	case now.Before(sunriseTime):
@@ -175,14 +187,19 @@ func getWeatherStatus(lat, lon float64) (text, emoji string) {
 
 func ReplaceStatusVariables(emoji, text string, settings Settings) (string, string) {
 	var lat, lon float64
-	if len(settings.Location) > 0 {
-		lat, lon = settings.Location[0].Latitude, settings.Location[0].Longitude
-	} else {
+	lat, lon = settings.Location.Latitude, settings.Location.Longitude
+	if lat == 0 && lon == 0 {
 		lat, lon = 50.8503, 4.3517 // fallback: Brussels
+	}
+	
+	// Get timezone (default to UTC if not specified)
+	timezone := settings.Timezone
+	if timezone == "" {
+		timezone = "UTC"
 	}
 
 	// --- Time-based values ---
-	timeEmoji, timeText, timestampText := getTimeBasedEmoji(lat, lon)
+	timeEmoji, timeText, timestampText := getTimeBasedEmoji(lat, lon, timezone)
 
 	// --- Weather-based values ---
 	weatherText, weatherEmoji := getWeatherStatus(lat, lon)
@@ -253,26 +270,19 @@ func UpdateDiscordStatus(emoji, text string) bool {
 func LaunchDiscordStatusRotation() {
 	rand.Seed(time.Now().UnixNano())
 
-	settingsPath := "configuration/settings.json"
-	presetsPath := "configuration/presets.json"
-	statusesPath := "configuration/statuses.json"
+	configPath := "configuration/config.json"
+	var config Config
 
-	var settings []Settings
-	var presets []Preset
-	var statuses []Status
-
-	loadConfigs := func() bool {
-		err1 := readJSONFile(settingsPath, &settings)
-		err2 := readJSONFile(presetsPath, &presets)
-		err3 := readJSONFile(statusesPath, &statuses)
-		if err1 != nil || err2 != nil || err3 != nil {
-			log.Println("❌ Error reading config files:", err1, err2, err3)
+	loadConfig := func() bool {
+		err := readJSONFile(configPath, &config)
+		if err != nil {
+			log.Println("❌ Error reading config file:", err)
 			return false
 		}
 		return true
 	}
 
-	if !loadConfigs() {
+	if !loadConfig() {
 		return
 	}
 
@@ -281,103 +291,98 @@ func LaunchDiscordStatusRotation() {
 	log.Println("🚀 Discord Status Rotator started...")
 
 	for {
-		reload := fileChanged(settingsPath, &lastSettingsData)
+		reload := fileChanged(configPath, &lastConfigData)
 		if reload {
 			log.Println("🔄 Configuration changed, reloading...")
-			if loadConfigs() {
+			if loadConfig() {
 				sequenceCounter = 0
 				lastPresetID = -1
 			}
 		}
 
-		if len(settings) == 0 {
-			time.Sleep(5 * time.Second)
+		if !config.Settings.Active {
+			time.Sleep(time.Duration(config.Settings.IntervalSeconds) * time.Second)
 			continue
 		}
 
-		current := settings[0]
-		if !current.Active {
-			time.Sleep(time.Duration(current.IntervalSeconds) * time.Second)
-			continue
-		}
-
-		if current.PresetID != lastPresetID {
-			log.Printf("🎚️ Switched to preset %d\n", current.PresetID)
-			lastPresetID = current.PresetID
+		if config.Settings.ActivePresetID != lastPresetID {
+			log.Printf("🎚️ Switched to preset %d\n", config.Settings.ActivePresetID)
+			lastPresetID = config.Settings.ActivePresetID
 			sequenceCounter = 0
 		}
 
 		var preset *Preset
-		for i := range presets {
-			if presets[i].ID == current.PresetID {
-				preset = &presets[i]
+		for i := range config.Presets {
+			if config.Presets[i].ID == config.Settings.ActivePresetID {
+				preset = &config.Presets[i]
 				break
 			}
 		}
 
 		if preset == nil {
 			log.Println("❌ Preset not found")
-			time.Sleep(time.Duration(current.IntervalSeconds) * time.Second)
+			time.Sleep(time.Duration(config.Settings.IntervalSeconds) * time.Second)
 			continue
 		}
 
-		if sequenceCounter >= len(preset.Statuses) {
+		if sequenceCounter >= len(preset.Sequence) {
 			sequenceCounter = 0
 		}
 
-		entry := preset.Statuses[sequenceCounter]
+		item := preset.Sequence[sequenceCounter]
 		sequenceCounter++
+
+		// Get the sequence type handler
+		typeHandler := GetSequenceType(item.Type)
+		if typeHandler == nil {
+			log.Printf("⚠️ Unknown sequence type: %s\n", item.Type)
+			time.Sleep(time.Duration(config.Settings.IntervalSeconds) * time.Second)
+			continue
+		}
+
+		// Check if this sequence should execute based on its conditions
+		if !typeHandler.ShouldExecute(item.Params, config.Settings) {
+			log.Printf("⏭️ Skipping sequence (conditions not met): %s\n", item.Type)
+			time.Sleep(time.Duration(config.Settings.IntervalSeconds) * time.Second)
+			continue
+		}
+
+		// Select status based on type logic
+		selectedStatusID := typeHandler.SelectStatus(item.Params, config.Statuses)
 
 		var emoji string
 		var textsToSend []string
 
-		switch entry.Type {
-		case "static":
-			id := fmt.Sprintf("%v", entry.Status)
-			for i := range statuses {
-				if statuses[i].ID == id {
-					emoji = statuses[i].Emoji
-					textsToSend = strings.Split(statuses[i].Text, "\n")
+		if selectedStatusID != nil {
+			// Find the status by ID
+			for i := range config.Statuses {
+				if config.Statuses[i].ID == *selectedStatusID {
+					emoji = config.Statuses[i].Emoji
+					textsToSend = strings.Split(config.Statuses[i].Text, "\n")
 					break
 				}
 			}
-		case "random":
-			arr, ok := entry.Status.([]interface{})
-			if ok && len(arr) > 0 {
-				randIndex := rand.Intn(len(arr))
-				id := fmt.Sprintf("%v", arr[randIndex])
-				for i := range statuses {
-					if statuses[i].ID == id {
-						emoji = statuses[i].Emoji
-						textsToSend = strings.Split(statuses[i].Text, "\n")
-						break
-					}
-				}
-			}
-		case "none":
-			// Execute empty status (emoji="", text="")
-			textsToSend = []string{""}
-		default:
-			log.Println("⚠️ Unknown sequence type:", entry.Type)
+		} else {
+			// No status selected (e.g., "none" type)
 			textsToSend = []string{""}
 		}
 
 		// Loop through sub-lines (sub-loop)
 		for _, t := range textsToSend {
-			emoji, t = ReplaceStatusVariables(emoji, t, current)
+			emoji, t = ReplaceStatusVariables(emoji, t, config.Settings)
 
 			UpdateDiscordStatus(emoji, t)
 
-			if fileChanged(settingsPath, &lastSettingsData) {
+			if fileChanged(configPath, &lastConfigData) {
 				log.Println("🔄 Configuration changed mid-cycle, reloading...")
-				if loadConfigs() {
+				if loadConfig() {
 					sequenceCounter = 0
 					lastPresetID = -1
 				}
 				break
 			}
 
-			time.Sleep(time.Duration(current.IntervalSeconds) * time.Second)
+			time.Sleep(time.Duration(config.Settings.IntervalSeconds) * time.Second)
 		}
 	}
 }

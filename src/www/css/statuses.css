@@ -8,65 +8,91 @@
 
 /* ===== Status Items ===== */
 .status-item {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.8rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .status-item:hover {
-  background: #252525;
+  background: var(--card-hover);
+  border-color: var(--border-focus);
+  transform: translateX(4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .status-info {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.5rem;
   word-break: break-word;
+  flex: 1;
 }
 
 .status-emoji {
-  font-size: 1.5rem;
-  margin-bottom: 0.2rem;
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+  line-height: 1;
 }
 
 .status-text {
   white-space: pre-wrap;
   color: var(--text);
   font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .status-tags {
-  margin-top: 6px;
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .tag {
   display: inline-block;
-  background-color: #eee;
-  color: #333;
-  padding: 2px 6px;
-  margin-right: 4px;
-  border-radius: 6px;
-  font-size: 0.8em;
+  background: var(--accent-dim);
+  color: var(--text);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid var(--accent);
 }
 
 /* ===== Action Buttons ===== */
+.status-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
 .status-actions button {
   border: none;
-  background: none;
-  font-size: 1.2rem;
+  background: var(--bg);
+  font-size: 1.3rem;
   cursor: pointer;
-  margin-left: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
-  transition: transform 0.2s, color 0.2s;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
 }
 
 .status-actions button:hover {
-  transform: scale(1.2);
+  transform: scale(1.1);
   color: var(--accent);
+  background: var(--bg-secondary);
+  border-color: var(--accent);
+}
+
+.status-actions button.delete:hover {
+  color: var(--danger);
+  border-color: var(--danger);
 }

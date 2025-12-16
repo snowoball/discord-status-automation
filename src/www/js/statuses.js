@@ -1,13 +1,13 @@
-import { fetchJSON, generateNewId, postJSON } from "./api.js";
+import { fetchConfig, updateConfig, generateNewId } from "./api.js";
 
 const listContainer = document.getElementById("status-list");
 const form = document.getElementById("status-form");
 const newButton = document.getElementById("new-status");
 
-let statuses = [];
+let config = null;
 
-async function loadStatuses() {
-  statuses = await fetchJSON("/api/config/statuses");
+async function loadData() {
+  config = await fetchConfig();
   renderList();
 }
 
@@ -20,13 +20,11 @@ function resetForm() {
   renderList();
 }
 
-// New status button
 newButton.addEventListener("click", (e) => {
   e.preventDefault();
   resetForm();
 });
 
-// Reset/Cancel button inside the form
 form.addEventListener("reset", (e) => {
   e.preventDefault();
   resetForm();
@@ -34,21 +32,21 @@ form.addEventListener("reset", (e) => {
 
 function renderList() {
   listContainer.innerHTML = "";
-  statuses.forEach((s, i) => {
+  config.statuses.forEach((s, i) => {
     const item = document.createElement("div");
     item.className = "status-item";
 
-    // Build tags HTML (if any)
-    const tagsHTML = s.tags && s.tags.length
-      ? `<div class="status-tags">${
-        s.tags.map((t) => `<span class="tag">${t}</span>`).join(" ")
-      }</div>`
-      : "";
+    const tagsHTML =
+      s.tags && s.tags.length
+        ? `<div class="status-tags">${
+            s.tags.map((t) => `<span class="tag">${t}</span>`).join(" ")
+          }</div>`
+        : "";
 
     item.innerHTML = `
       <div class="status-info">
-        <div class="status-emoji">${s.status_emoji}</div>
-        <div class="status-text">${s.status_text}</div>
+        <div class="status-emoji">${s.emoji}</div>
+        <div class="status-text">${s.text}</div>
         ${tagsHTML}
       </div>
       <div class="status-actions">
@@ -65,7 +63,6 @@ form.addEventListener("submit", async (e) => {
   const emoji = form.emoji.value.trim();
   const text = form.text.value.trim();
 
-  // Parse tags input
   const tags = form.tags.value
     .split(",")
     .map((t) => t.trim())
@@ -74,24 +71,24 @@ form.addEventListener("submit", async (e) => {
   const editIdx = form.dataset.editing;
 
   if (editIdx) {
-    statuses[editIdx].status_emoji = emoji;
-    statuses[editIdx].status_text = text;
-    statuses[editIdx].tags = tags;
+    config.statuses[editIdx].emoji = emoji;
+    config.statuses[editIdx].text = text;
+    config.statuses[editIdx].tags = tags;
   } else {
-    const newId = generateNewId(statuses, "status_id");
-    statuses.push({
-      status_id: newId.toString(),
-      status_emoji: emoji,
-      status_text: text,
+    const newId = generateNewId(config.statuses, "id");
+    config.statuses.push({
+      id: newId,
+      emoji: emoji,
+      text: text,
       tags,
     });
   }
 
-  await postJSON("/api/config/statuses", statuses);
+  await updateConfig(config);
   form.reset();
   delete form.dataset.editing;
   form.querySelector("#form-title").textContent = "Add Status";
-  loadStatuses();
+  loadData();
 });
 
 listContainer.addEventListener("click", async (e) => {
@@ -99,23 +96,22 @@ listContainer.addEventListener("click", async (e) => {
   if (!idx && idx !== "0") return;
 
   if (e.target.classList.contains("edit")) {
-    const s = statuses[idx];
-    form.emoji.value = s.status_emoji;
-    form.text.value = s.status_text;
-    form.tags.value = s.tags ? s.tags.join(", ") : ""; // ← populate tags field
+    const s = config.statuses[idx];
+    form.emoji.value = s.emoji;
+    form.text.value = s.text;
+    form.tags.value = s.tags ? s.tags.join(", ") : "";
     form.dataset.editing = idx;
-    form.querySelector("#form-title").textContent =
-      `Editing Status #${s.status_id}`;
+    form.querySelector("#form-title").textContent = `Editing Status #${s.id}`;
   }
 
   if (e.target.classList.contains("delete")) {
-    const s = statuses[idx];
-    if (confirm(`Delete status #${s.status_id}?`)) {
-      statuses.splice(idx, 1);
-      await postJSON("/api/config/statuses", statuses);
-      loadStatuses();
+    const s = config.statuses[idx];
+    if (confirm(`Delete status #${s.id}?`)) {
+      config.statuses.splice(idx, 1);
+      await updateConfig(config);
+      loadData();
     }
   }
 });
 
-loadStatuses();
+loadData();

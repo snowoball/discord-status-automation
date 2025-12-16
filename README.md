@@ -12,17 +12,23 @@ placeholders.
 
 ## Features
 
-- Rotate Discord status emoji and text automatically based on configurable
-  presets.
-- Supports dynamic placeholders:
-
-  - `{{time_emoji}}` / `{{time_text}}`
-  - `{{timestamp_text}}` (current HH:MM AM/PM)
-  - `{{weather_emoji}}` / `{{weather_text}}`
-- Web configuration server for creating/editing presets and statuses.
-- Built-in toggle for web configuration (`NO_WEB=true/false`) for server
-  envoirnoments.
-- Runs locally with Go or with Docker.
+- **Modular status rotation system** with extensible sequence types
+- **Built-in sequence types:**
+  - `static` - Display a single status
+  - `random` - Randomly pick from multiple statuses
+  - `none` - Clear the status
+  - `schedule` - Show status only during specific time range
+  - `weekday` - Show status only on specific days of the week
+  - `conditional` - Combine weekday AND time range conditions
+- **Dynamic placeholders:**
+  - `{{time_emoji}}` / `{{time_text}}` - Day phase based on your location and timezone
+  - `{{timestamp_text}}` - Current time (HH:MM AM/PM) in your timezone
+  - `{{weather_emoji}}` / `{{weather_text}}` - Current weather at your location
+- **Web configuration UI** for creating/editing presets and statuses
+- **Timezone support** - All time-based features use your configured timezone
+- **Hot-reload configuration** - Changes apply without restart
+- Built-in toggle for web UI (`NO_WEB=true/false`) for server environments
+- Runs locally with Go or with Docker
 
 ---
 
@@ -37,29 +43,28 @@ placeholders.
 
 ## Web Configuration Service
 
-- Runs on port `8080` (configurable in Docker / Go environment).
+- Runs on port `8080` (configurable in Docker / Go environment)
 - Provides an interface to:
-
-  - Add or edit statuses
-  - Create presets
-  - Use dynamic placeholders like `{{weather_emoji}}` or `{{time_text}}`
+  - Add or edit statuses with dynamic placeholders
+  - Create presets with modular sequence types
+  - Configure timezone and location settings
   - Toggle the service on/off
-- Configuration is saved in the `configuration` folder (`settings.json`,
-  `presets.json`, `statuses.json`).
-- Default files can be reset if needed - just replace them from the repo
-  defaults.
+- **Configuration file:** `configuration/config.json` (single unified file)
+- Changes are automatically applied when you edit the file while running
+- **Timezone configuration:** Set your timezone in settings for accurate time-based sequences
+- **Location (optional):** Only required for weather placeholders (`{{weather_emoji}}`, `{{weather_text}}`)
 
 ---
 
 ## Configuration
 
-- `configuration/settings.json` — controls active preset, interval, and
-  location.
-- `configuration/presets.json` — defines sequences and types of statuses.
-- `configuration/statuses.json` — stores individual statuses and their
-  emoji/text.
-- Changes are automatically applied if you edit files while the container or Go
-  service is running.
+- **Single config file:** `configuration/config.json`
+  - `settings` — Active preset, interval, timezone, and location
+  - `statuses` — Individual statuses with emoji/text and tags
+  - `presets` — Sequences using modular type system
+- Changes are automatically hot-reloaded without restart
+- **Timezone:** Required for time-based sequence types (schedule, weekday, conditional)
+- **Location:** Optional, only needed for weather-based placeholders
 
 ## Images
 

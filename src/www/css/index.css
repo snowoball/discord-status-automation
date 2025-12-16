@@ -5,24 +5,45 @@
 }
 
 .settings-display {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .settings-card {
-  background: var(--card-inner-bg, #292929);
-  border-radius: 8px;
-  padding: 1rem;
-  line-height: 1.5;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  line-height: 1.7;
+  box-shadow: var(--shadow);
 }
 
 .settings-card p {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+}
+
+.settings-card strong {
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-right: 0.5rem;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1rem;
+}
+
+/* === Optional/Required labels === */
+.optional-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.required {
+  color: var(--accent);
+  font-weight: bold;
 }
 
 /* === Checkbox (Active toggle) === */
@@ -31,24 +52,33 @@ label:has(#activeToggle) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.75rem;
   font-weight: 600;
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+label[for="activeToggle"]:hover,
+label:has(#activeToggle):hover {
+  background: var(--bg-secondary);
 }
 
 /* Hide native checkbox */
 #activeToggle {
   appearance: none;
   -webkit-appearance: none;
-  width: 46px;
-  height: 24px;
-  background: #333;
-  border-radius: 12px;
+  width: 52px;
+  height: 28px;
+  background: var(--border);
+  border-radius: 14px;
   position: relative;
   outline: none;
   cursor: pointer;
-  transition: background 0.25s ease;
+  transition: background 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Slider knob */
@@ -57,65 +87,59 @@ label:has(#activeToggle) {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #aaa;
-  transition: all 0.25s ease;
+  background: var(--text-dim);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Checked state */
 #activeToggle:checked {
   background: var(--accent);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #activeToggle:checked::before {
-  left: 25px;
+  left: 27px;
   background: #fff;
 }
 
-/* === Inputs, Selects === */
-input[type="number"], select {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #222;
-  color: #eee;
+/* === Location fields === */
+.location-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 /* === Button === */
 button[type="submit"] {
-  margin-top: 1rem;
-  padding: 0.6rem;
-  border-radius: 6px;
-  background: #4caf50;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--success);
   color: white;
   border: none;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 button[type="submit"]:hover {
-  background: #43a047;
+  background: #0ea573;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* === Errors === */
-.error {
-  color: #f55;
-  font-weight: bold;
+button[type="submit"]:active {
+  transform: translateY(0);
 }
 
-/* Optional: small polish for location fields */
-.location-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem;
-}
-
-/* Disabled form appearance */
+/* === Disabled form appearance === */
 .form-disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -123,4 +147,10 @@ button[type="submit"]:hover {
 .form-disabled #activeToggle {
   opacity: 1;
   pointer-events: auto;
+}
+
+.form-disabled button[type="submit"] {
+  opacity: 1;
+  pointer-events: auto;
+  background: var(--success);
 }
