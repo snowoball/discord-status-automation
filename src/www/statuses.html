@@ -4,8 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Statuses</title>
+  <meta name="description" content="Manage your Discord statuses with dynamic placeholders" />
+  <title>Statuses | Discord Status Automation</title>
   <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/statuses.css" />
   <script src="js/navigation.js" defer></script>
   <script type="module" src="js/statuses.js" defer></script>
@@ -54,8 +56,11 @@
       <form id="status-form" class="side-form card">
         <h2 id="form-title">Add Status</h2>
 
-        <label>Emoji</label>
-        <input name="emoji" placeholder="💻 or {{weather_emoji}}" required />
+        <label>Emoji <span style="color: var(--text-dim); font-weight: normal;">(optional)</span></label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input name="emoji" placeholder="💻 or {{weather_emoji}}" style="flex: 1;" />
+          <button type="button" id="emoji-picker-btn" class="btn-secondary" style="padding: 0.75rem 1rem; font-size: 1.2rem;">😊</button>
+        </div>
 
         <label>Text</label>
         <textarea name="text" rows="6" placeholder="Your status text...  (supports multiple lines. Use return)"

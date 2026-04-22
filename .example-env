@@ -1,6 +1,2 @@
 # Discord token(s) - comma-separated if multiple accounts
 DISCORD_TOKENS=AAAA,BBBB,CCCC
-
-# Optional: Timezone for container (legacy - now configured in web UI)
-# Timezone is now set via config.json settings.timezone field
-TZ=UTC

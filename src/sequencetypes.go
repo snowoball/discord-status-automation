@@ -99,6 +99,12 @@ func (t *StaticSequenceType) GetConfigSchema() TypeSchema {
 		Description: "Display a single status",
 		Fields: []FieldSchema{
 			{
+				Key:      "tagFilter",
+				Label:    "Filter by Tag (optional)",
+				Type:     "tagselect",
+				Required: false,
+			},
+			{
 				Key:      "statusId",
 				Label:    "Status",
 				Type:     "select",
@@ -143,6 +149,12 @@ func (t *RandomSequenceType) GetConfigSchema() TypeSchema {
 		Description: "Randomly select from multiple statuses",
 		Fields: []FieldSchema{
 			{
+				Key:      "tagFilter",
+				Label:    "Filter by Tag (optional)",
+				Type:     "tagselect",
+				Required: false,
+			},
+			{
 				Key:      "statusIds",
 				Label:    "Statuses",
 				Type:     "multiselect",
@@ -183,13 +195,6 @@ func (t *ScheduleSequenceType) GetName() string {
 }
 
 func (t *ScheduleSequenceType) ShouldExecute(params map[string]interface{}, settings Settings) bool {
-	startTime, startOk := params["startTime"].(string)
-	endTime, endOk := params["endTime"].(string)
-	
-	if !startOk || !endOk {
-		return false
-	}
-	
 	// Load timezone from settings
 	timezone := settings.Timezone
 	if timezone == "" {
@@ -202,10 +207,41 @@ func (t *ScheduleSequenceType) ShouldExecute(params map[string]interface{}, sett
 	}
 	
 	now := time.Now().In(loc)
-	currentTime := now.Format("15:04")
 	
-	// Simple time range check (doesn't handle overnight ranges yet)
-	return currentTime >= startTime && currentTime <= endTime
+	// Check weekday condition if specified
+	if daysRaw, ok := params["weekdays"].([]interface{}); ok && len(daysRaw) > 0 {
+		days := make([]string, 0, len(daysRaw))
+		for _, raw := range daysRaw {
+			if day, ok := raw.(string); ok {
+				days = append(days, day)
+			}
+		}
+		
+		currentDay := now.Weekday().String()
+		dayMatches := false
+		for _, day := range days {
+			if day == currentDay {
+				dayMatches = true
+				break
+			}
+		}
+		
+		if !dayMatches {
+			return false
+		}
+	}
+	
+	// Check time range if specified
+	startTime, hasStart := params["startTime"].(string)
+	endTime, hasEnd := params["endTime"].(string)
+	
+	if hasStart && hasEnd && startTime != "" && endTime != "" {
+		currentTime := now.Format("15:04")
+		return currentTime >= startTime && currentTime <= endTime
+	}
+	
+	// If no time specified but weekday matched (or no weekday specified), return true
+	return true
 }
 
 func (t *ScheduleSequenceType) SelectStatus(params map[string]interface{}, statuses []Status) *int {
@@ -219,86 +255,14 @@ func (t *ScheduleSequenceType) SelectStatus(params map[string]interface{}, statu
 func (t *ScheduleSequenceType) GetConfigSchema() TypeSchema {
 	return TypeSchema{
 		Name:        "schedule",
-		Description: "Display status only during specific time range",
+		Description: "Display status during specific times and days",
 		Fields: []FieldSchema{
 			{
-				Key:      "statusId",
-				Label:    "Status",
-				Type:     "select",
-				Required: true,
+				Key:      "tagFilter",
+				Label:    "Filter by Tag (optional)",
+				Type:     "tagselect",
+				Required: false,
 			},
-			{
-				Key:      "startTime",
-				Label:    "Start Time (HH:MM)",
-				Type:     "time",
-				Required: true,
-			},
-			{
-				Key:      "endTime",
-				Label:    "End Time (HH:MM)",
-				Type:     "time",
-				Required: true,
-			},
-		},
-	}
-}
-
-// WeekdaySequenceType - Only executes on specific days of the week
-type WeekdaySequenceType struct{}
-
-func (t *WeekdaySequenceType) GetName() string {
-	return "weekday"
-}
-
-func (t *WeekdaySequenceType) ShouldExecute(params map[string]interface{}, settings Settings) bool {
-	daysRaw, ok := params["weekdays"].([]interface{})
-	if !ok || len(daysRaw) == 0 {
-		return false
-	}
-	
-	// Convert to string slice
-	days := make([]string, 0, len(daysRaw))
-	for _, raw := range daysRaw {
-		if day, ok := raw.(string); ok {
-			days = append(days, day)
-		}
-	}
-	
-	// Load timezone from settings
-	timezone := settings.Timezone
-	if timezone == "" {
-		timezone = "UTC"
-	}
-	
-	loc, err := time.LoadLocation(timezone)
-	if err != nil {
-		loc = time.Local
-	}
-	
-	currentDay := time.Now().In(loc).Weekday().String()
-	
-	for _, day := range days {
-		if day == currentDay {
-			return true
-		}
-	}
-	
-	return false
-}
-
-func (t *WeekdaySequenceType) SelectStatus(params map[string]interface{}, statuses []Status) *int {
-	if statusId, ok := params["statusId"].(float64); ok {
-		id := int(statusId)
-		return &id
-	}
-	return nil
-}
-
-func (t *WeekdaySequenceType) GetConfigSchema() TypeSchema {
-	return TypeSchema{
-		Name:        "weekday",
-		Description: "Display status only on specific days of the week",
-		Fields: []FieldSchema{
 			{
 				Key:      "statusId",
 				Label:    "Status",
@@ -307,103 +271,7 @@ func (t *WeekdaySequenceType) GetConfigSchema() TypeSchema {
 			},
 			{
 				Key:      "weekdays",
-				Label:    "Days of Week",
-				Type:     "multiselect",
-				Required: true,
-				Options: []Option{
-					{Value: "Monday", Label: "Monday"},
-					{Value: "Tuesday", Label: "Tuesday"},
-					{Value: "Wednesday", Label: "Wednesday"},
-					{Value: "Thursday", Label: "Thursday"},
-					{Value: "Friday", Label: "Friday"},
-					{Value: "Saturday", Label: "Saturday"},
-					{Value: "Sunday", Label: "Sunday"},
-				},
-			},
-		},
-	}
-}
-
-// ConditionalSequenceType - Combines weekday and time conditions
-type ConditionalSequenceType struct{}
-
-func (t *ConditionalSequenceType) GetName() string {
-	return "conditional"
-}
-
-func (t *ConditionalSequenceType) ShouldExecute(params map[string]interface{}, settings Settings) bool {
-	// Load timezone from settings
-	timezone := settings.Timezone
-	if timezone == "" {
-		timezone = "UTC"
-	}
-	
-	loc, err := time.LoadLocation(timezone)
-	if err != nil {
-		loc = time.Local
-	}
-	
-	now := time.Now().In(loc)
-	
-	// Check weekday condition
-	if daysRaw, ok := params["weekdays"].([]interface{}); ok && len(daysRaw) > 0 {
-		days := make([]string, 0, len(daysRaw))
-		for _, raw := range daysRaw {
-			if day, ok := raw.(string); ok {
-				days = append(days, day)
-			}
-		}
-		
-		currentDay := now.Weekday().String()
-		dayMatch := false
-		for _, day := range days {
-			if day == currentDay {
-				dayMatch = true
-				break
-			}
-		}
-		
-		if !dayMatch {
-			return false
-		}
-	}
-	
-	// Check time condition
-	if startTime, startOk := params["startTime"].(string); startOk {
-		if endTime, endOk := params["endTime"].(string); endOk {
-			currentTime := now.Format("15:04")
-			
-			if currentTime < startTime || currentTime > endTime {
-				return false
-			}
-		}
-	}
-	
-	return true
-}
-
-func (t *ConditionalSequenceType) SelectStatus(params map[string]interface{}, statuses []Status) *int {
-	if statusId, ok := params["statusId"].(float64); ok {
-		id := int(statusId)
-		return &id
-	}
-	return nil
-}
-
-func (t *ConditionalSequenceType) GetConfigSchema() TypeSchema {
-	return TypeSchema{
-		Name:        "conditional",
-		Description: "Display status based on day of week AND time range",
-		Fields: []FieldSchema{
-			{
-				Key:      "statusId",
-				Label:    "Status",
-				Type:     "select",
-				Required: true,
-			},
-			{
-				Key:      "weekdays",
-				Label:    "Days of Week",
+				Label:    "Days of Week (optional)",
 				Type:     "multiselect",
 				Required: false,
 				Options: []Option{
@@ -418,13 +286,13 @@ func (t *ConditionalSequenceType) GetConfigSchema() TypeSchema {
 			},
 			{
 				Key:      "startTime",
-				Label:    "Start Time (HH:MM)",
+				Label:    "Start Time (HH:MM, optional)",
 				Type:     "time",
 				Required: false,
 			},
 			{
 				Key:      "endTime",
-				Label:    "End Time (HH:MM)",
+				Label:    "End Time (HH:MM, optional)",
 				Type:     "time",
 				Required: false,
 			},
@@ -438,6 +306,4 @@ func init() {
 	RegisterSequenceType(&RandomSequenceType{})
 	RegisterSequenceType(&NoneSequenceType{})
 	RegisterSequenceType(&ScheduleSequenceType{})
-	RegisterSequenceType(&WeekdaySequenceType{})
-	RegisterSequenceType(&ConditionalSequenceType{})
 }

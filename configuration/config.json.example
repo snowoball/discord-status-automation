@@ -1,0 +1,124 @@
+{
+  "settings": {
+    "active": true,
+    "activePresetId": 1,
+    "intervalSeconds": 15,
+    "timezone": "Europe/Brussels",
+    "location": {
+      "latitude": 37.7749,
+      "longitude": -122.4194
+    }
+  },
+  "statuses": [
+    {
+      "id": 1,
+      "emoji": "💻",
+      "text": "Coding in progress...",
+      "tags": []
+    },
+    {
+      "id": 2,
+      "emoji": "☕",
+      "text": "Taking a coffee break",
+      "tags": []
+    },
+    {
+      "id": 3,
+      "emoji": "{{weather_emoji}}",
+      "text": "{{weather_text}}",
+      "tags": [
+        "dynamic"
+      ]
+    },
+    {
+      "id": 4,
+      "emoji": "{{time_emoji}}",
+      "text": "{{time_text}}",
+      "tags": [
+        "dynamic"
+      ]
+    },
+    {
+      "id": 5,
+      "emoji": "📚",
+      "text": "Reading documentation",
+      "tags": [
+        "learning"
+      ]
+    },
+    {
+      "id": 6,
+      "emoji": "🎯",
+      "text": "Focusing on tasks",
+      "tags": []
+    }
+  ],
+  "presets": [
+    {
+      "id": 1,
+      "name": "My Preset",
+      "sequence": [
+        {
+          "type": "static",
+          "params": {
+            "statusId": 4
+          }
+        },
+        {
+          "type": "static",
+          "params": {
+            "statusId": 3
+          }
+        },
+        {
+          "type": "none",
+          "params": {}
+        },
+        {
+          "type": "random",
+          "params": {
+            "statusIds": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "type": "none",
+          "params": {}
+        },
+        {
+          "type": "schedule",
+          "params": {
+            "statusId": 5,
+            "startTime": "09:00",
+            "endTime": "17:00"
+          }
+        },
+        {
+          "type": "weekday",
+          "params": {
+            "statusId": 6,
+            "weekdays": [
+              "Monday",
+              "Wednesday",
+              "Friday"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Another Preset",
+      "sequence": [
+        {
+          "type": "static",
+          "params": {
+            "statusId": 1
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { fetchConfig, updateConfig, generateNewId } from "./api.js";
+import { showNotification, confirmDialog, createLoader, createEmptyState } from "./components.js";
 import {
   fetchTypeSchemas,
   getTypeRenderer,
@@ -14,11 +15,19 @@ const addStatusButton = document.getElementById("add-status");
 
 let config = null;
 let typeSchemas = [];
+const loader = createLoader("Loading presets...");
 
 async function loadData() {
-  config = await fetchConfig();
-  typeSchemas = await fetchTypeSchemas();
-  renderList();
+  try {
+    loader.show();
+    config = await fetchConfig();
+    typeSchemas = await fetchTypeSchemas();
+    renderList();
+  } catch (err) {
+    showNotification(`Failed to load presets: ${err.message}`, 'error');
+  } finally {
+    loader.hide();
+  }
 }
 
 loadData();
@@ -42,17 +51,29 @@ form.addEventListener("reset", (e) => {
 });
 
 function renderList() {
+  if (config.presets.length === 0) {
+    const empty = createEmptyState(
+      "📋",
+      "No presets yet",
+      "Create your first preset using the form on the right"
+    );
+    listContainer.innerHTML = "";
+    listContainer.appendChild(empty);
+    return;
+  }
+
   listContainer.innerHTML = "";
   config.presets.forEach((s, i) => {
     const item = document.createElement("div");
-    item.className = "preset-item";
+    item.className = "preset-item fade-in";
     item.innerHTML = `
       <div class="preset-info">
         <div class="preset-name">${s.name}</div>
+        <div class="preset-meta text-dim">${s.sequence.length} sequence item(s)</div>
       </div>
       <div class="preset-actions">
-        <button class="edit" data-idx="${i}">✏️</button>
-        <button class="delete" data-idx="${i}">🗑️</button>
+        <button class="edit" data-idx="${i}" title="Edit preset">✏️</button>
+        <button class="delete" data-idx="${i}" title="Delete preset">🗑️</button>
       </div>
     `;
     listContainer.appendChild(item);
@@ -221,24 +242,32 @@ form.addEventListener("submit", async (e) => {
   const sequence = getCurrentSequence();
   const editIdx = form.dataset.editing;
 
-  if (editIdx) {
-    config.presets[editIdx].name = name;
-    config.presets[editIdx].sequence = sequence;
-  } else {
-    const newId = generateNewId(config.presets, "id");
-    config.presets.push({ id: newId, name, sequence });
-  }
+  try {
+    if (editIdx) {
+      config.presets[editIdx].name = name;
+      config.presets[editIdx].sequence = sequence;
+    } else {
+      const newId = generateNewId(config.presets, "id");
+      config.presets.push({ id: newId, name, sequence });
+    }
 
-  await updateConfig(config);
-  form.reset();
-  delete form.dataset.editing;
-  delete form.dataset.currentSequence;
-  form.querySelector("#form-title").textContent = "Add Preset";
-  renderPresetSequence([]);
-  loadData();
+    loader.show();
+    await updateConfig(config);
+    form.reset();
+    delete form.dataset.editing;
+    delete form.dataset.currentSequence;
+    form.querySelector("#form-title").textContent = "Add Preset";
+    renderPresetSequence([]);
+    await loadData();
+    showNotification(editIdx ? "Preset updated!" : "Preset created!", 'success');
+  } catch (err) {
+    showNotification(`Failed to save preset: ${err.message}`, 'error');
+  } finally {
+    loader.hide();
+  }
 });
 
-listContainer.addEventListener("click", (e) => {
+listContainer.addEventListener("click", async (e) => {
   const idx = e.target.dataset.idx;
   if (!idx && idx !== "0") return;
 
@@ -249,14 +278,24 @@ listContainer.addEventListener("click", (e) => {
     form.querySelector("#form-title").textContent = `Editing Preset #${s.id}`;
     storeSequenceData(s.sequence || []);
     renderPresetSequence(s.sequence || []);
+    form.scrollIntoView({ behavior: "smooth" });
   }
 
   if (e.target.classList.contains("delete")) {
     const s = config.presets[idx];
-    if (confirm(`Delete preset #${s.id}?`)) {
-      config.presets.splice(idx, 1);
-      updateConfig(config);
-      loadData();
+    const confirmed = await confirmDialog(`Are you sure you want to delete preset "${s.name}"?`);
+    if (confirmed) {
+      try {
+        loader.show();
+        config.presets.splice(idx, 1);
+        await updateConfig(config);
+        await loadData();
+        showNotification("Preset deleted", 'success');
+      } catch (err) {
+        showNotification(`Failed to delete preset: ${err.message}`, 'error');
+      } finally {
+        loader.hide();
+      }
     }
   }
 });

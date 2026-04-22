@@ -1,4 +1,5 @@
 import { fetchConfig, updateConfig } from "./api.js";
+import { showNotification, createLoader } from "./components.js";
 
 const display = document.getElementById("settings-display");
 const form = document.getElementById("settings-form");
@@ -7,6 +8,7 @@ const timezoneSelect = document.getElementById("timezone");
 const toggle = document.getElementById("activeToggle");
 
 let config = null;
+const loader = createLoader("Loading settings...");
 
 // Common timezones list
 const timezones = [
@@ -40,12 +42,16 @@ const timezones = [
 
 async function loadData() {
   try {
+    loader.show();
     config = await fetchConfig();
     populateTimezones();
     renderPresetOptions();
     renderSettings();
   } catch (err) {
-    display.innerHTML = `<p class="error">Failed to load settings: ${err}</p>`;
+    display.innerHTML = `<p class="error-message">Failed to load settings: ${err.message}</p>`;
+    showNotification(`Failed to load settings: ${err.message}`, 'error');
+  } finally {
+    loader.hide();
   }
 }
 
@@ -77,7 +83,7 @@ function renderSettings() {
   if (s.active) {
     display.innerHTML = `
       <div class="settings-card">
-        <p><strong>Active:</strong> ✅ Yes</p>
+        <p><strong>Active:</strong> <span class="badge badge-success">✓ Yes</span></p>
         <p><strong>Preset:</strong> ${presetName}</p>
         <p><strong>Interval:</strong> ${s.intervalSeconds}s</p>
         <p><strong>Timezone:</strong> ${s.timezone || "UTC"}</p>
@@ -86,9 +92,9 @@ function renderSettings() {
     `;
   } else {
     display.innerHTML = `
-      <div class="settings-card" style="text-align: center; padding: 2rem;">
+      <div class="settings-card text-center" style="padding: 2rem;">
         <p style="font-size: 1.2rem; color: var(--text-muted);">❌ Service is currently inactive</p>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Enable the toggle below to start the status rotation</p>
+        <p class="text-dim mt-2">Enable the toggle below to start the status rotation</p>
       </div>
     `;
   }
@@ -107,7 +113,6 @@ function renderSettings() {
 function updateFormState() {
   const disabled = !toggle.checked;
   [...form.elements].forEach((el) => {
-    // Don't disable the toggle itself or the submit button
     if (el !== toggle && el.type !== "submit") {
       el.disabled = disabled;
     }
@@ -132,11 +137,14 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
+    loader.show();
     await updateConfig(config);
     renderSettings();
-    alert("Settings updated successfully!");
+    showNotification("Settings updated successfully!", 'success');
   } catch (err) {
-    alert("Failed to update settings: " + err);
+    showNotification(`Failed to update settings: ${err.message}`, 'error');
+  } finally {
+    loader.hide();
   }
 });
 

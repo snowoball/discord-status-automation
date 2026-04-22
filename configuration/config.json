@@ -2,26 +2,14 @@
   "settings": {
     "active": true,
     "activePresetId": 1,
-    "intervalSeconds": 15,
+    "intervalSeconds": 16,
     "timezone": "Europe/Brussels",
     "location": {
-      "latitude": 37.7749,
-      "longitude": -122.4194
+      "latitude": 51.3329914,
+      "longitude": 3.2126309
     }
   },
   "statuses": [
-    {
-      "id": 1,
-      "emoji": "💻",
-      "text": "Coding in progress...",
-      "tags": []
-    },
-    {
-      "id": 2,
-      "emoji": "☕",
-      "text": "Taking a coffee break",
-      "tags": []
-    },
     {
       "id": 3,
       "emoji": "{{weather_emoji}}",
@@ -33,30 +21,264 @@
     {
       "id": 4,
       "emoji": "{{time_emoji}}",
-      "text": "{{time_text}}",
+      "text": "{{timestamp_text}}",
       "tags": [
         "dynamic"
       ]
     },
     {
       "id": 5,
-      "emoji": "📚",
-      "text": "Reading documentation",
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
       "tags": [
-        "learning"
+        "lyrics"
       ]
     },
     {
       "id": 6,
-      "emoji": "🎯",
-      "text": "Focusing on tasks",
-      "tags": []
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 7,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 8,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 9,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 10,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 11,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 12,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 13,
+      "emoji": "🎵",
+      "text": "PLACEHOLDER",
+      "tags": [
+        "lyrics"
+      ]
+    },
+    {
+      "id": 14,
+      "emoji": "💬",
+      "text": "Most of your anxiety comes from trying to control things you can't",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 15,
+      "emoji": "💬",
+      "text": "You are not locked into any version of you that someone else expects\nGrow. Change. Surprise even yourself",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 16,
+      "emoji": "💬",
+      "text": "The darkest nights produce the brightest stars.",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 17,
+      "emoji": "💬",
+      "text": "Would it not be more comforting to count the stars in the sky-\n-than to look out into the darkness?\n> Re:Zero",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 18,
+      "emoji": "💬",
+      "text": "How can a man die better-\n-for the ashes of his fathers-\n-and the temples of his Gods?",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 19,
+      "emoji": "💬",
+      "text": "Kindness is never wasted.\nYou never know who's hanging on by a thread\nBe the soft place to land -\n- even if you're the only one in the room offering it",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 21,
+      "emoji": "💬",
+      "text": "𝗣𝗲𝗿 𝗔𝘀𝗽𝗲𝗿𝗮 𝗔𝗱 𝗔𝘀𝘁𝗿𝗮",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 22,
+      "emoji": "💬",
+      "text": "Perfectionism is procrastination wearing high heels\nYou'll never feel ready- do it scared\nConfidence comes after action, not before",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 23,
+      "emoji": "💬",
+      "text": "In the pursuit of great, we failed to do good.",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 25,
+      "emoji": "💬",
+      "text": "In the silence of uncertainty, let hope be your loudest voice.",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 26,
+      "emoji": "💬",
+      "text": "The dream is to see it happen. The nightmare is to see it fail.",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 28,
+      "emoji": "💬",
+      "text": "We used to look up at the sky...\n...and wonder at our place in the stars\nNow we just look down...\n...and worry about our place in the dirt",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 29,
+      "emoji": "💬",
+      "text": "I saw corps strip farmers of water ... and eventually of land.\nSaw them transform Night City into a machine fueled by people's crushed spirits,\nbroken dreams and emptied pockets.\nCorps've long controlled our lives, taken lots... and now they're after our souls.\nI've declared war not because capitalism's a thorn in my side or outta nostalgia for an age gone by.\nThis war's a people's war against a system that's spiralled outta our control.\nIt's a war against the fuckin' forces of entropy, understand?",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 30,
+      "emoji": "💬",
+      "text": "They won't fear it until they understand it.\nAnd they won't understand it until they've used it.",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 31,
+      "emoji": "💬",
+      "text": "Why is peace always the justification for violence?",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 32,
+      "emoji": "💬",
+      "text": "IT'S NOT CALLED \"SPEED UP\" or \"Tiktok Version\"\nIT'S CALLED NIGHTCORE\nAND YOU PUT AN ANIME GIRL ON THE THUMBNAIL",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 33,
+      "emoji": "💬",
+      "text": "Don't cry because it's over, smile because it happened",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 34,
+      "emoji": "none",
+      "text": "Thank you for the pain\nIt made me raise my game",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 35,
+      "emoji": "💬",
+      "text": "Icarus laughed as he fell\nfor he knew to fall means to once have soared",
+      "tags": [
+        "quote"
+      ]
+    },
+    {
+      "id": 36,
+      "emoji": "",
+      "text": "Working",
+      "tags": [
+        "status"
+      ]
+    },
+    {
+      "id": 37,
+      "emoji": "💤",
+      "text": "Sleeping",
+      "tags": [
+        "status"
+      ]
+    },
+    {
+      "id": 38,
+      "emoji": "",
+      "text": "Chilling",
+      "tags": [
+        "status"
+      ]
     }
   ],
   "presets": [
     {
       "id": 1,
-      "name": "My Preset",
+      "name": "Default Rotation",
       "sequence": [
         {
           "type": "static",
@@ -78,8 +300,45 @@
           "type": "random",
           "params": {
             "statusIds": [
-              1,
-              2
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              12,
+              11,
+              13
+            ]
+          }
+        },
+        {
+          "type": "none",
+          "params": {}
+        },
+        {
+          "type": "random",
+          "params": {
+            "statusIds": [
+              14,
+              26,
+              25,
+              22,
+              15,
+              17,
+              18,
+              16,
+              19,
+              21,
+              23,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35
             ]
           }
         },
@@ -89,33 +348,18 @@
         },
         {
           "type": "schedule",
-          "params": {
-            "statusId": 5,
-            "startTime": "09:00",
-            "endTime": "17:00"
-          }
-        },
-        {
-          "type": "weekday",
-          "params": {
-            "statusId": 6,
-            "weekdays": [
-              "Monday",
-              "Wednesday",
-              "Friday"
-            ]
-          }
+          "params": {}
         }
       ]
     },
     {
       "id": 2,
-      "name": "Another Preset",
+      "name": "Test-preset",
       "sequence": [
         {
           "type": "static",
           "params": {
-            "statusId": 1
+            "statusId": 29
           }
         }
       ]
